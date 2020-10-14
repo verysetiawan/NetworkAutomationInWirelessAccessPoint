@@ -92,7 +92,8 @@ def config():
                     f'/ip pool add name=AP-MUM-{ip_mik[11:]} ranges=172.16.{ip_mik[11:]}.2-172.16.{ip_mik[11:]}.30',
                     f'/ip dhcp-server add address-pool=AP-{ip_mik[11:]} disabled=no interface=bridge lease-time=30m name=AP-{ip_mik[11:]} relay=172.16.{ip_mik[11:]}.1',
                     f'/ip dhcp-server network add address=172.16.{ip_mik[11:]}.0/27 dns-server=8.8.8.8 gateway=172.16.{ip_mik[11:]}.1',
-                    f'/queue simple add name=Limit-AP-MUM-{ip_mik[11:]} target=172.16.{ip_mik[11:]}.0/27 queue=pcq-upload-default/pcq-download-default max-limit=15M/15M'
+                    '/queue simple add name=Parent-Limit-AP target=172.16.0.0/16 queue=pcq-upload-default/pcq-download-default max-limit=100M/100M priority=1/1',
+                    f'/queue simple add name=Limit-AP-MUM-{ip_mik[11:]} target=172.16.{ip_mik[11:]}.0/27 queue=pcq-upload-default/pcq-download-default limit-at=15M/15M parent=Parent-Limit-AP max-limit=15M/15M'
                     ]
     for rellay in rellay_list:
         ssh_client.exec_command(rellay)
