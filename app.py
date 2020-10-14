@@ -41,6 +41,7 @@ def config():
     else :
         frekuensi = "2462"
     #print (frekuensi)
+    
     #Menyimpan informasi ip ke file ip_address.txt
     file_write = open ("template/ip_address.txt","a")
     file_write.write (ip_mik)
@@ -53,8 +54,7 @@ def config():
     ssh_client.connect(hostname=ip_mik,username=username,password=password, allow_agent=False, look_for_keys=False)
     print (f"sukses login to {ip_mik}")
     
-    #Perintah konfigurasi router klien
-     
+    #Perintah konfigurasi router klien     
     config_list = [
         f"/system identity set name=MUM-AP-{ip_mik[12:]}",
         '/interface bridge port remove [find interface="wlan1"]',
@@ -78,6 +78,7 @@ def config():
         "user add name=noc password=noc123 disabled=no group=read",
         "user add name=supervisor password=supervisor123 disabled=no group=write"
         ]
+
     #Konfigurasi router klien
     for config in config_list:
         ssh_client.exec_command(config)
@@ -97,7 +98,7 @@ def config():
         print (rellay)
         time.sleep(0.2)
 
-    print (f"Berhasil menambahkan rellay pada Core Router dengan ip {ip_address_cr} ")
+    print (f"Berhasil menambahkan rellay pada Core Router untuk network 172.16.{ip_mik[12:]}.0/24 ")
     
     return jsonify(data) 
 
