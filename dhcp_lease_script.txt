@@ -2,7 +2,7 @@
 :local time [/system clock get time]
 :foreach x in=[/ip dhcp-server lease find server=mum dynamic] do={ 
 local ip [/ip dhcp-server lease get value-name=address $x] 
-foreach y in=[/ip address find interface=bridge1] do={
+foreach y in=[/ip address find interface=bridge] do={
 local gate [/ip address get value-name=address $y]            
 /ip dhcp-server lease make-static $x                      
 /ip dhcp-server lease comment comment="ip diterima pada : $time-$date" $x
