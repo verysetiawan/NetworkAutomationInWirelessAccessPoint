@@ -66,7 +66,6 @@ def config():
         f"/ip dns set servers={ip_gate[:13]}",
         f"/ip address add address=172.16.{ip_mik[11:]}.1/27 interface=wlan1 network=172.16.{ip_mik[11:]}.0",
         f'/ip dhcp-relay add dhcp-server=192.168.88.1 disabled=no interface=wlan1 local-address=172.16.{ip_mik[11:]}.1 name=AP-{ip_mik[11:]}',
-        #f"/ip dhcp-server network add address=172.16.{ip_mik[11:]}.0/27 dns-server={ip_gate[:13]} gateway=172.16.{ip_mik[11:]}.1",
         "/ip neighbor discovery-settings set discover-interface-list=none",
         "/system ntp client set enabled=yes primary-ntp=202.162.32.12",
         "/system clock set time-zone-name=Asia/Jakarta",
@@ -75,6 +74,13 @@ def config():
         #f"/routing ospf network add area=backbone network=172.16.{ip_mik[12:]}.0/24",
         #"/routing ospf network add area=backbone network=192.168.100.0/26",
         "tool bandwidth-server set enabled=no",
+        '/tool mac-server set [ find default=yes ] interface=bridge',
+        '/tool mac-server mac-winbox add interface=bridge',
+        '/tool mac-server mac-winbox set [ find default=yes ] disabled=yes',
+        '/ip firewall filter add action=accept chain=input comment="icmp dari semua interface" protocol=icmp',
+        '/ip firewall filter add action=accept chain=input comment="ijinkan admin akses router dari wlan" in-interface=wlan1 protocol=tcp src-mac-address=24:77:03:68:14:04',
+        '/ip firewall filter add action=drop chain=input comment="blokir akses ke router dari wlan" in-interface=wlan1 protocol=tcp',
+        '/password old-password="" new-password="mum2020" confirm-new-password="mum2020"',
         "user add name=noc password=noc123 disabled=no group=read",
         "user add name=supervisor password=supervisor123 disabled=no group=write"
         ]
@@ -88,19 +94,19 @@ def config():
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh_client.connect(hostname=ip_address_cr,username=username,password=password, allow_agent=False, look_for_keys=False)
     print (f"sukses login to {ip_address_cr}")
-    rellay_list = [
+    config_cr_list = [ '/system identity set name=Core-Router',
                     f'/ip pool add name=AP-MUM-{ip_mik[11:]} ranges=172.16.{ip_mik[11:]}.2-172.16.{ip_mik[11:]}.30',
                     f'/ip dhcp-server add address-pool=AP-MUM-{ip_mik[11:]} disabled=no interface=bridge lease-time=30m name=AP-{ip_mik[11:]} relay=172.16.{ip_mik[11:]}.1',
                     f'/ip dhcp-server network add address=172.16.{ip_mik[11:]}.0/27 dns-server=8.8.8.8 gateway=172.16.{ip_mik[11:]}.1',
                     '/queue simple add name=Parent-Limit-AP target=172.16.0.0/16 queue=pcq-upload-default/pcq-download-default max-limit=100M/100M priority=1/1',
                     f'/queue simple add name=Limit-AP-MUM-{ip_mik[11:]} target=172.16.{ip_mik[11:]}.0/27 queue=pcq-upload-default/pcq-download-default limit-at=15M/15M parent=Parent-Limit-AP max-limit=100M/100M'
                     ]
-    for rellay in rellay_list:
-        ssh_client.exec_command(rellay)
-        print (rellay)
+    for core_router in config_cr_list:
+        ssh_client.exec_command(core_router)
+        print (core_router)
         time.sleep(0.2)
 
-    print (f"Berhasil menambahkan rellay pada Core Router untuk network 172.16.{ip_mik[11:]}.0/24 ")
+    print (f"Berhasil menambahkan konfigurasi pada Core Router untuk AP-MUM-{ip_mik[11:]}")
     
     return jsonify(data) 
 
