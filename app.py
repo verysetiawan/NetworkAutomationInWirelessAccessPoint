@@ -64,9 +64,9 @@ def config():
         f'/interface wireless set [ find default-name=wlan1 ] band=2ghz-g/n channel-width=20mhz disabled=no frequency={frekuensi} mode=ap-bridge radio-name=MUM-AP-{ip_mik[11:]} ssid=MUM-AP-{ip_mik[11:]}',
         '/interface wireless access-list add interface=wlan1 signal-range=-80..120 vlan-mode=no-tag',
         f"/ip dns set servers={ip_gate[:13]}",
-        f"/ip address add address=172.16.{ip_mik[11:]}.1/24 interface=wlan1 network=172.16.{ip_mik[11:]}.0",
+        f"/ip address add address=172.16.{ip_mik[11:]}.1/27 interface=wlan1 network=172.16.{ip_mik[11:]}.0",
         f'/ip dhcp-relay add dhcp-server=192.168.88.1 disabled=no interface=wlan1 local-address=172.16.{ip_mik[11:]}.1 name=AP-{ip_mik[11:]}',
-        f"/ip dhcp-server network add address=172.16.{ip_mik[11:]}.0/24 dns-server={ip_gate[:13]} gateway=172.16.{ip_mik[11:]}.1",
+        #f"/ip dhcp-server network add address=172.16.{ip_mik[11:]}.0/27 dns-server={ip_gate[:13]} gateway=172.16.{ip_mik[11:]}.1",
         "/ip neighbor discovery-settings set discover-interface-list=none",
         "/system ntp client set enabled=yes primary-ntp=202.162.32.12",
         "/system clock set time-zone-name=Asia/Jakarta",
@@ -89,9 +89,10 @@ def config():
     ssh_client.connect(hostname=ip_address_cr,username=username,password=password, allow_agent=False, look_for_keys=False)
     print (f"sukses login to {ip_address_cr}")
     rellay_list = [
-                    f'/ip pool add name=AP-{ip_mik[11:]} ranges=172.16.{ip_mik[11:]}.2-172.16.{ip_mik[11:]}.254',
+                    f'/ip pool add name=AP-MUM-{ip_mik[11:]} ranges=172.16.{ip_mik[11:]}.2-172.16.{ip_mik[11:]}.30',
                     f'/ip dhcp-server add address-pool=AP-{ip_mik[11:]} disabled=no interface=bridge lease-time=30m name=AP-{ip_mik[11:]} relay=172.16.{ip_mik[11:]}.1',
-                    f'/ip dhcp-server network add address=172.16.{ip_mik[11:]}.0/24 dns-server=8.8.8.8 gateway=172.16.{ip_mik[11:]}.1'
+                    f'/ip dhcp-server network add address=172.16.{ip_mik[11:]}.0/27 dns-server=8.8.8.8 gateway=172.16.{ip_mik[11:]}.1',
+                    f'/queue simple add name=Limit-AP-MUM-{ip_mik[11:]} target=172.16.{ip_mik[11:]}.0/27 queue=pcq-upload-default/pcq-download-default max-limit=15M/15M'
                     ]
     for rellay in rellay_list:
         ssh_client.exec_command(rellay)
