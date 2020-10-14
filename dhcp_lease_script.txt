@@ -1,6 +1,6 @@
 :local date [/system clock get date]
 :local time [/system clock get time]
-:foreach x in=[/ip dhcp-server lease find server=mum dynamic last-seen<=6s] do={ 
+:foreach x in=[/ip dhcp-server lease find server=mum dynamic] do={ 
 local ip [/ip dhcp-server lease get value-name=address $x] 
 foreach y in=[/ip address find interface=bridge] do={
 local gate [/ip address get value-name=address $y]            
